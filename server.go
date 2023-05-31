@@ -8,6 +8,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/clerkinc/clerk-sdk-go/clerk"
+	"go.uber.org/zap"
 )
 
 const defaultPort = "8080"
@@ -17,6 +19,10 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+
+	logger.Info("Hello, world!")
 
 	// token := os.Getenv("INFLUXDB_TOKEN")
 	// url := "http://localhost:8086"
@@ -72,6 +78,19 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 	///
+
+	//CLERK STUFF
+	apiKey := os.Getenv("CLERK_API_KEY")
+
+	client, err := clerk.NewClient(apiKey)
+	if err != nil {
+		// handle error
+	}
+
+	// List all users for current application
+	users, err := client.Users().ListAll(clerk.ListAllUsersParams{})
+
+	logger.Info("Users!", zap.Reflect("users", users))
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
 
