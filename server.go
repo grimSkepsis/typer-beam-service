@@ -85,18 +85,27 @@ func main() {
 	client, err := clerk.NewClient(apiKey)
 	if err != nil {
 		// handle error
+		logger.Error("Error!", zap.Error(err))
 	}
 
 	// List all users for current application
-	users, err := client.Users().ListAll(clerk.ListAllUsersParams{})
+	// users, err := client.Users().ListAll(clerk.ListAllUsersParams{})
 
-	logger.Info("Users!", zap.Reflect("users", users))
+	// logger.Info("Users!", zap.Reflect("users", users))
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	// srv :=
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	mux := http.NewServeMux()
+	injectActiveSession := clerk.WithSession(client)
+
+	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	// http.Handle("/query", srv)
+	mux.Handle("/query", injectActiveSession(gqlHandler(client)))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, mux))
+}
+
+func gqlHandler(client clerk.Client) *handler.Server {
+	return handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ClerkClient: &client}}))
 }
