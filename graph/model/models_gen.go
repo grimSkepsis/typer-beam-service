@@ -2,6 +2,11 @@
 
 package model
 
+type CreateWritingSampleInput struct {
+	Title string `json:"title"`
+	Text  string `json:"text"`
+}
+
 type Link struct {
 	ID      string `json:"id"`
 	Title   string `json:"title"`
@@ -31,4 +36,10 @@ type RefreshTokenInput struct {
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type WritingSample struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Text  string `json:"text"`
 }

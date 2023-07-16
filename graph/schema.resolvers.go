@@ -8,7 +8,21 @@ import (
 	"context"
 	"fmt"
 	"typebeast-service/graph/model"
+
+	"go.uber.org/zap"
 )
+
+// CreateWritingSample is the resolver for the createWritingSample field.
+func (r *mutationResolver) CreateWritingSample(ctx context.Context, input model.CreateWritingSampleInput) (*model.WritingSample, error) {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	logger.Info("Creating sample!")
+	return &model.WritingSample{
+		ID:    "test123",
+		Title: input.Title,
+		Text:  input.Text,
+	}, nil
+}
 
 // CreateLink is the resolver for the createLink field.
 func (r *mutationResolver) CreateLink(ctx context.Context, input model.NewLink) (*model.Link, error) {
@@ -37,6 +51,9 @@ func (r *queryResolver) Links(ctx context.Context) ([]*model.Link, error) {
 
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	logger.Info("Getting user!")
 	return &model.User{ID: id, Name: "GALACTUS"}, nil
 }
 

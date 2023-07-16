@@ -34,7 +34,20 @@ input Login {
   password: String!
 }
 
+# Writing samples
+input CreateWritingSampleInput {
+  title: String!
+  text: String!
+}
+
+type WritingSample {
+  id: String!
+  title: String!
+  text: String!
+}
+
 type Mutation {
+  createWritingSample(input: CreateWritingSampleInput!): WritingSample!
   createLink(input: NewLink!): Link!
   createUser(input: NewUser!): String!
   login(input: Login!): String!
