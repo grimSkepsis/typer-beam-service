@@ -3,8 +3,8 @@
 package model
 
 type CreateWritingSampleInput struct {
-	Title string `json:"title"`
-	Text  string `json:"text"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }
 
 type Link struct {
@@ -39,7 +39,7 @@ type User struct {
 }
 
 type WritingSample struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
-	Text  string `json:"text"`
+	ID      string `json:"id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }

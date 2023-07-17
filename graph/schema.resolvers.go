@@ -17,11 +17,12 @@ func (r *mutationResolver) CreateWritingSample(ctx context.Context, input model.
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 	logger.Info("Creating sample!")
-	return &model.WritingSample{
-		ID:    "test123",
-		Title: input.Title,
-		Text:  input.Text,
-	}, nil
+	// sample := model.WritingSample{
+	// 	Title:   input.Title,
+	// 	Content: input.Content,
+	// }
+
+	return nil, nil
 }
 
 // CreateLink is the resolver for the createLink field.

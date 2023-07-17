@@ -37,13 +37,13 @@ input Login {
 # Writing samples
 input CreateWritingSampleInput {
   title: String!
-  text: String!
+  content: String!
 }
 
 type WritingSample {
   id: String!
   title: String!
-  text: String!
+  content: String!
 }
 
 type Mutation {

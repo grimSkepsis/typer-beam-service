@@ -71,9 +71,9 @@ type ComplexityRoot struct {
 	}
 
 	WritingSample struct {
-		ID    func(childComplexity int) int
-		Text  func(childComplexity int) int
-		Title func(childComplexity int) int
+		Content func(childComplexity int) int
+		ID      func(childComplexity int) int
+		Title   func(childComplexity int) int
 	}
 }
 
@@ -225,19 +225,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Name(childComplexity), true
 
+	case "WritingSample.content":
+		if e.complexity.WritingSample.Content == nil {
+			break
+		}
+
+		return e.complexity.WritingSample.Content(childComplexity), true
+
 	case "WritingSample.id":
 		if e.complexity.WritingSample.ID == nil {
 			break
 		}
 
 		return e.complexity.WritingSample.ID(childComplexity), true
-
-	case "WritingSample.text":
-		if e.complexity.WritingSample.Text == nil {
-			break
-		}
-
-		return e.complexity.WritingSample.Text(childComplexity), true
 
 	case "WritingSample.title":
 		if e.complexity.WritingSample.Title == nil {
@@ -706,8 +706,8 @@ func (ec *executionContext) fieldContext_Mutation_createWritingSample(ctx contex
 				return ec.fieldContext_WritingSample_id(ctx, field)
 			case "title":
 				return ec.fieldContext_WritingSample_title(ctx, field)
-			case "text":
-				return ec.fieldContext_WritingSample_text(ctx, field)
+			case "content":
+				return ec.fieldContext_WritingSample_content(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type WritingSample", field.Name)
 		},
@@ -1376,8 +1376,8 @@ func (ec *executionContext) fieldContext_WritingSample_title(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _WritingSample_text(ctx context.Context, field graphql.CollectedField, obj *model.WritingSample) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_WritingSample_text(ctx, field)
+func (ec *executionContext) _WritingSample_content(ctx context.Context, field graphql.CollectedField, obj *model.WritingSample) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WritingSample_content(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1390,7 +1390,7 @@ func (ec *executionContext) _WritingSample_text(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Text, nil
+		return obj.Content, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1407,7 +1407,7 @@ func (ec *executionContext) _WritingSample_text(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_WritingSample_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_WritingSample_content(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WritingSample",
 		Field:      field,
@@ -3200,7 +3200,7 @@ func (ec *executionContext) unmarshalInputCreateWritingSampleInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"title", "text"}
+	fieldsInOrder := [...]string{"title", "content"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3216,15 +3216,15 @@ func (ec *executionContext) unmarshalInputCreateWritingSampleInput(ctx context.C
 				return it, err
 			}
 			it.Title = data
-		case "text":
+		case "content":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Text = data
+			it.Content = data
 		}
 	}
 
@@ -3653,9 +3653,9 @@ func (ec *executionContext) _WritingSample(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "text":
+		case "content":
 
-			out.Values[i] = ec._WritingSample_text(ctx, field, obj)
+			out.Values[i] = ec._WritingSample_content(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
