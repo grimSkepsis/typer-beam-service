@@ -7,8 +7,10 @@ package graph
 import (
 	"context"
 	"fmt"
+	dbmodel "typebeast-service/database/model"
 	"typebeast-service/graph/model"
 
+	"github.com/clerkinc/clerk-sdk-go/clerk"
 	"go.uber.org/zap"
 )
 
@@ -17,12 +19,24 @@ func (r *mutationResolver) CreateWritingSample(ctx context.Context, input model.
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 	logger.Info("Creating sample!")
-	// sample := model.WritingSample{
-	// 	Title:   input.Title,
-	// 	Content: input.Content,
-	// }
 
-	return nil, nil
+	claims, ok := clerk.SessionFromContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("Invalid session claims")
+	}
+
+	sample := dbmodel.WritingSample{
+		Title:   input.Title,
+		Content: input.Content,
+		UserID:  claims.Subject,
+	}
+	r.DB.Create(&sample)
+
+	return &model.WritingSample{
+		ID:      sample.ID,
+		Title:   sample.Title,
+		Content: sample.Content,
+	}, nil
 }
 
 // CreateLink is the resolver for the createLink field.

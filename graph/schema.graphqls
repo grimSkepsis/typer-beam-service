@@ -41,7 +41,7 @@ input CreateWritingSampleInput {
 }
 
 type WritingSample {
-  id: String!
+  id: ID!
   title: String!
   content: String!
 }

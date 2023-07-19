@@ -1,6 +1,9 @@
 package graph
 
-import "github.com/clerkinc/clerk-sdk-go/clerk"
+import (
+	"github.com/clerkinc/clerk-sdk-go/clerk"
+	"gorm.io/gorm"
+)
 
 // This file will not be regenerated automatically.
 //
@@ -8,4 +11,5 @@ import "github.com/clerkinc/clerk-sdk-go/clerk"
 
 type Resolver struct {
 	ClerkClient *clerk.Client
+	DB          *gorm.DB
 }

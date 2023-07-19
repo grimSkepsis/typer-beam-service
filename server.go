@@ -10,6 +10,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/clerkinc/clerk-sdk-go/clerk"
 	"go.uber.org/zap"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 const defaultPort = "8080"
@@ -98,14 +100,24 @@ func main() {
 	mux := http.NewServeMux()
 	injectActiveSession := clerk.WithSession(client)
 
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN: os.Getenv("PSQL_CONNECTION_STRING"),
+	}))
+
+	if err != nil {
+		logger.Error("COULDN'T SETUP DB CONNECTION! ", zap.Error(err))
+	} else {
+		log.Printf("connected to db")
+	}
+
 	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	// http.Handle("/query", srv)
-	mux.Handle("/query", injectActiveSession(gqlHandler(client)))
+	mux.Handle("/query", injectActiveSession(gqlHandler(&client, db)))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
-func gqlHandler(client clerk.Client) *handler.Server {
-	return handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ClerkClient: &client}}))
+func gqlHandler(client *clerk.Client, db *gorm.DB) *handler.Server {
+	return handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ClerkClient: client, DB: db}}))
 }
