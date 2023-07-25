@@ -2,33 +2,20 @@
 
 package model
 
-type Link struct {
+type CreateWritingSampleInput struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
+type PerformanceInput struct {
+	SampleID       string  `json:"sampleId"`
+	TimeToComplete float64 `json:"timeToComplete"`
+	Accuracy       float64 `json:"accuracy"`
+	Wpm            float64 `json:"wpm"`
+}
+
+type WritingSample struct {
 	ID      string `json:"id"`
 	Title   string `json:"title"`
-	Address string `json:"address"`
-	User    *User  `json:"user"`
-}
-
-type Login struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type NewLink struct {
-	Title   string `json:"title"`
-	Address string `json:"address"`
-}
-
-type NewUser struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type RefreshTokenInput struct {
-	Token string `json:"token"`
-}
-
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	Content string `json:"content"`
 }

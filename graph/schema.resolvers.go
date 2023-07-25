@@ -7,37 +7,66 @@ package graph
 import (
 	"context"
 	"fmt"
+	dbmodel "typebeast-service/database/model"
 	"typebeast-service/graph/model"
+
+	"github.com/clerkinc/clerk-sdk-go/clerk"
+	"go.uber.org/zap"
 )
 
-// CreateLink is the resolver for the createLink field.
-func (r *mutationResolver) CreateLink(ctx context.Context, input model.NewLink) (*model.Link, error) {
-	panic(fmt.Errorf("not implemented: CreateLink - createLink"))
+// CreateWritingSample is the resolver for the createWritingSample field.
+func (r *mutationResolver) CreateWritingSample(ctx context.Context, input model.CreateWritingSampleInput) (*model.WritingSample, error) {
+	logger := r.Resolver.Logger
+	logger.Info("creating sample", zap.Reflect("input", input))
+
+	claims, ok := clerk.SessionFromContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("invalid session claims")
+	}
+
+	sample := dbmodel.WritingSample{
+		Title:   input.Title,
+		Content: input.Content,
+		UserID:  claims.Subject,
+	}
+	r.DB.Create(&sample)
+
+	return &model.WritingSample{
+		ID:      sample.ID,
+		Title:   sample.Title,
+		Content: sample.Content,
+	}, nil
 }
 
-// CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
-	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
+// RecordUserPerformance is the resolver for the recordUserPerformance field.
+func (r *mutationResolver) RecordUserPerformance(ctx context.Context, input model.PerformanceInput) (bool, error) {
+	r.Resolver.Logger.Info("logging performance", zap.Reflect("input", input))
+	return true, nil
 }
 
-// Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
-}
+// GetSamples is the resolver for the getSamples field.
+func (r *queryResolver) GetSamples(ctx context.Context) ([]*model.WritingSample, error) {
+	logger := r.Resolver.Logger
+	logger.Info("getting samples")
+	claims, ok := clerk.SessionFromContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("invalid session claims")
+	}
 
-// RefreshToken is the resolver for the refreshToken field.
-func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error) {
-	panic(fmt.Errorf("not implemented: RefreshToken - refreshToken"))
-}
+	var samples []dbmodel.WritingSample
+	r.DB.Where("user_id = ?", claims.Subject).Find(&samples)
 
-// Links is the resolver for the links field.
-func (r *queryResolver) Links(ctx context.Context) ([]*model.Link, error) {
-	panic(fmt.Errorf("not implemented: Links - links"))
-}
+	var gqlSamples []*model.WritingSample
 
-// GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
-	return &model.User{ID: id, Name: "GALACTUS"}, nil
+	for _, sample := range samples {
+		gqlSamples = append(gqlSamples, &model.WritingSample{
+			ID:      sample.ID,
+			Title:   sample.Title,
+			Content: sample.Content,
+		})
+	}
+
+	return gqlSamples, nil
 }
 
 // Mutation returns MutationResolver implementation.

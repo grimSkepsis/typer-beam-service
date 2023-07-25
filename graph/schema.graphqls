@@ -1,43 +1,29 @@
-type Link {
-  id: ID!
-  title: String!
-  address: String!
-  user: User!
-}
 
-type User {
-  id: ID!
-  name: String!
-}
 
 type Query {
-  links: [Link!]!
-  getUser(id: String!): User!
+  getSamples: [WritingSample]!
 }
 
-input NewLink {
+# Writing samples
+input CreateWritingSampleInput {
   title: String!
-  address: String!
+  content: String!
 }
 
-input RefreshTokenInput{
-  token: String!
+type WritingSample {
+  id: ID!
+  title: String!
+  content: String!
 }
 
-input NewUser {
-  username: String!
-  password: String!
-}
-
-input Login {
-  username: String!
-  password: String!
+input PerformanceInput {
+  sampleId: String!
+  timeToComplete: Float!
+  accuracy: Float!
+  wpm: Float!
 }
 
 type Mutation {
-  createLink(input: NewLink!): Link!
-  createUser(input: NewUser!): String!
-  login(input: Login!): String!
-  # we'll talk about this in authentication section
-  refreshToken(input: RefreshTokenInput!): String!
+  createWritingSample(input: CreateWritingSampleInput!): WritingSample!
+  recordUserPerformance(input: PerformanceInput!): Boolean!
 }
