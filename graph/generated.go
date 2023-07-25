@@ -61,8 +61,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetUser func(childComplexity int, id string) int
-		Links   func(childComplexity int) int
+		GetSamples func(childComplexity int) int
+		GetUser    func(childComplexity int, id string) int
+		Links      func(childComplexity int) int
 	}
 
 	User struct {
@@ -87,6 +88,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Links(ctx context.Context) ([]*model.Link, error)
 	GetUser(ctx context.Context, id string) (*model.User, error)
+	GetSamples(ctx context.Context) ([]*model.WritingSample, error)
 }
 
 type executableSchema struct {
@@ -191,6 +193,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RefreshToken(childComplexity, args["input"].(model.RefreshTokenInput)), true
+
+	case "Query.getSamples":
+		if e.complexity.Query.GetSamples == nil {
+			break
+		}
+
+		return e.complexity.Query.GetSamples(childComplexity), true
 
 	case "Query.getUser":
 		if e.complexity.Query.GetUser == nil {
@@ -1067,6 +1076,58 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 	if fc.Args, err = ec.field_Query_getUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getSamples(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getSamples(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetSamples(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.WritingSample)
+	fc.Result = res
+	return ec.marshalNWritingSample2ᚕᚖtypebeastᚑserviceᚋgraphᚋmodelᚐWritingSample(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getSamples(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_WritingSample_id(ctx, field)
+			case "title":
+				return ec.fieldContext_WritingSample_title(ctx, field)
+			case "content":
+				return ec.fieldContext_WritingSample_content(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WritingSample", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -3571,6 +3632,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getSamples":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getSamples(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -4135,6 +4219,44 @@ func (ec *executionContext) marshalNWritingSample2typebeastᚑserviceᚋgraphᚋ
 	return ec._WritingSample(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNWritingSample2ᚕᚖtypebeastᚑserviceᚋgraphᚋmodelᚐWritingSample(ctx context.Context, sel ast.SelectionSet, v []*model.WritingSample) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOWritingSample2ᚖtypebeastᚑserviceᚋgraphᚋmodelᚐWritingSample(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) marshalNWritingSample2ᚖtypebeastᚑserviceᚋgraphᚋmodelᚐWritingSample(ctx context.Context, sel ast.SelectionSet, v *model.WritingSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -4438,6 +4560,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOWritingSample2ᚖtypebeastᚑserviceᚋgraphᚋmodelᚐWritingSample(ctx context.Context, sel ast.SelectionSet, v *model.WritingSample) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._WritingSample(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

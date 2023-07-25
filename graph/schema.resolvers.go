@@ -22,7 +22,7 @@ func (r *mutationResolver) CreateWritingSample(ctx context.Context, input model.
 
 	claims, ok := clerk.SessionFromContext(ctx)
 	if !ok {
-		return nil, fmt.Errorf("Invalid session claims")
+		return nil, fmt.Errorf("invalid session claims")
 	}
 
 	sample := dbmodel.WritingSample{
@@ -70,6 +70,32 @@ func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, er
 	defer logger.Sync()
 	logger.Info("Getting user!")
 	return &model.User{ID: id, Name: "GALACTUS"}, nil
+}
+
+// GetSamples is the resolver for the getSamples field.
+func (r *queryResolver) GetSamples(ctx context.Context) ([]*model.WritingSample, error) {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+	logger.Info("Getting samples!")
+	claims, ok := clerk.SessionFromContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("invalid session claims")
+	}
+
+	var samples []dbmodel.WritingSample
+	r.DB.Where("user_id = ?", claims.Subject).Find(&samples)
+
+	var gqlSamples []*model.WritingSample
+
+	for _, sample := range samples {
+		gqlSamples = append(gqlSamples, &model.WritingSample{
+			ID:      sample.ID,
+			Title:   sample.Title,
+			Content: sample.Content,
+		})
+	}
+
+	return gqlSamples, nil
 }
 
 // Mutation returns MutationResolver implementation.

@@ -13,6 +13,7 @@ type User {
 type Query {
   links: [Link!]!
   getUser(id: String!): User!
+  getSamples: [WritingSample]!
 }
 
 input NewLink {
