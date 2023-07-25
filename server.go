@@ -112,12 +112,12 @@ func main() {
 
 	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	// http.Handle("/query", srv)
-	mux.Handle("/query", injectActiveSession(gqlHandler(&client, db)))
+	mux.Handle("/query", injectActiveSession(gqlHandler(&client, db, logger)))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
-func gqlHandler(client *clerk.Client, db *gorm.DB) *handler.Server {
-	return handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ClerkClient: client, DB: db}}))
+func gqlHandler(client *clerk.Client, db *gorm.DB, logger *zap.Logger) *handler.Server {
+	return handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ClerkClient: client, DB: db, Logger: logger}}))
 }

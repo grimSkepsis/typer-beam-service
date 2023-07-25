@@ -2,6 +2,7 @@ package graph
 
 import (
 	"github.com/clerkinc/clerk-sdk-go/clerk"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -12,4 +13,5 @@ import (
 type Resolver struct {
 	ClerkClient *clerk.Client
 	DB          *gorm.DB
+	Logger      *zap.Logger
 }

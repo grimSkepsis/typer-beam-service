@@ -16,9 +16,8 @@ import (
 
 // CreateWritingSample is the resolver for the createWritingSample field.
 func (r *mutationResolver) CreateWritingSample(ctx context.Context, input model.CreateWritingSampleInput) (*model.WritingSample, error) {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	logger.Info("Creating sample!")
+	logger := r.Resolver.Logger
+	logger.Info("creating sample", zap.Reflect("input", input))
 
 	claims, ok := clerk.SessionFromContext(ctx)
 	if !ok {
@@ -39,44 +38,16 @@ func (r *mutationResolver) CreateWritingSample(ctx context.Context, input model.
 	}, nil
 }
 
-// CreateLink is the resolver for the createLink field.
-func (r *mutationResolver) CreateLink(ctx context.Context, input model.NewLink) (*model.Link, error) {
-	panic(fmt.Errorf("not implemented: CreateLink - createLink"))
-}
-
-// CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
-	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
-}
-
-// Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.Login) (string, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
-}
-
-// RefreshToken is the resolver for the refreshToken field.
-func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error) {
-	panic(fmt.Errorf("not implemented: RefreshToken - refreshToken"))
-}
-
-// Links is the resolver for the links field.
-func (r *queryResolver) Links(ctx context.Context) ([]*model.Link, error) {
-	panic(fmt.Errorf("not implemented: Links - links"))
-}
-
-// GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	logger.Info("Getting user!")
-	return &model.User{ID: id, Name: "GALACTUS"}, nil
+// RecordUserPerformance is the resolver for the recordUserPerformance field.
+func (r *mutationResolver) RecordUserPerformance(ctx context.Context, input model.PerformanceInput) (bool, error) {
+	r.Resolver.Logger.Info("logging performance", zap.Reflect("input", input))
+	return true, nil
 }
 
 // GetSamples is the resolver for the getSamples field.
 func (r *queryResolver) GetSamples(ctx context.Context) ([]*model.WritingSample, error) {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	logger.Info("Getting samples!")
+	logger := r.Resolver.Logger
+	logger.Info("getting samples")
 	claims, ok := clerk.SessionFromContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("invalid session claims")
